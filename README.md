@@ -1,1 +1,1 @@
-# contabo_sdk_go
+# Contabo SDK for Golang
