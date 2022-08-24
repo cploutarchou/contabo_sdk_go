@@ -8,8 +8,59 @@ import (
 
 type Instances struct {
 	ListInstances ListInstances
+	Instance      Instance
 }
-
+type Instance struct {
+	Data []struct {
+		TenantId      string `json:"tenantId"`
+		CustomerId    string `json:"customerId"`
+		AdditionalIps []struct {
+			V4 struct {
+				Ip          string `json:"ip"`
+				NetmaskCidr int    `json:"netmaskCidr"`
+				Gateway     string `json:"gateway"`
+			} `json:"v4"`
+		} `json:"additionalIps"`
+		Name        string `json:"name"`
+		DisplayName string `json:"displayName"`
+		InstanceId  int    `json:"instanceId"`
+		Region      string `json:"region"`
+		ProductId   string `json:"productId"`
+		ImageId     string `json:"imageId"`
+		IpConfig    struct {
+			V4 struct {
+				Ip          string `json:"ip"`
+				NetmaskCidr int    `json:"netmaskCidr"`
+				Gateway     string `json:"gateway"`
+			} `json:"v4"`
+			V6 struct {
+				Ip          string `json:"ip"`
+				NetmaskCidr int    `json:"netmaskCidr"`
+				Gateway     string `json:"gateway"`
+			} `json:"v6"`
+		} `json:"ipConfig"`
+		MacAddress  string    `json:"macAddress"`
+		RamMb       int32     `json:"ramMb"`
+		CpuCores    int       `json:"cpuCores"`
+		OsType      string    `json:"osType"`
+		DiskMb      int       `json:"diskMb"`
+		SshKeys     []int     `json:"sshKeys"`
+		CreatedDate time.Time `json:"createdDate"`
+		CancelDate  string    `json:"cancelDate"`
+		Status      string    `json:"status"`
+		VHostId     int       `json:"vHostId"`
+		AddOns      []struct {
+			Id       int `json:"id"`
+			Quantity int `json:"quantity"`
+		} `json:"addOns"`
+		ErrorMessage string `json:"errorMessage"`
+		ProductType  string `json:"productType"`
+		DefaultUser  string `json:"defaultUser"`
+	} `json:"data"`
+	Links struct {
+		Self string `json:"self"`
+	} `json:"_links"`
+}
 type ListInstances struct {
 	Pagination struct {
 		Size          int `json:"size"`
@@ -73,17 +124,27 @@ type ListInstances struct {
 }
 
 // Get returns the list of available resources
-func (l *ListInstances) Get(page, size *int) *ListInstances {
+func (l *ListInstances) Get(page, size *int) (*ListInstances, error) {
 	url := getPage(page, size)
 	res, _ := Do(GET, URL(url), nil)
 	var re ListInstances
 	err := json.Unmarshal(res, &re)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &re
+	return &re, nil
 }
 
+func (l *Instance) GetInstanceByID(id string) (*Instance, error) {
+	url := fmt.Sprintf("%s/%s", ComputeInstancesUrl, id)
+	res, _ := Do(GET, URL(url), nil)
+	var instance Instance
+	err := json.Unmarshal(res, &instance)
+	if err != nil {
+		return nil, err
+	}
+	return &instance, nil
+}
 func getPage(page *int, size *int) string {
 	var url string
 	if page != nil && size != nil {
