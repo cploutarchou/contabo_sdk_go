@@ -37,9 +37,21 @@ type Snapshot struct {
 	} `json:"_links"`
 }
 
-func (s *Snapshots) GetByID(id string) (*Snapshot, error) {
+func (s *Snapshots) GetInstanceSnapshots(instanceId int) (*Snapshot, error) {
 
-	url := fmt.Sprintf("%s/%s", ComputeInstancesUrl, id)
+	url := fmt.Sprintf("%s/%d/snapshots", ComputeInstancesUrl, instanceId)
+	res, _ := Do(GET, URL(url), nil)
+	var snapshots Snapshot
+	err := json.Unmarshal(res, &snapshots)
+	if err != nil {
+		return nil, err
+	}
+	return &snapshots, nil
+
+}
+func (s *Snapshots) GetSnapshot(instanceId int, snapshotId string) (*Snapshot, error) {
+
+	url := fmt.Sprintf("%s/%d/snapshots/%s", ComputeInstancesUrl, instanceId, snapshotId)
 	res, _ := Do(GET, URL(url), nil)
 	var snapshots Snapshot
 	err := json.Unmarshal(res, &snapshots)
