@@ -1,6 +1,10 @@
 package sdk
 
-import "time"
+import (
+	"encoding/json"
+	"fmt"
+	"time"
+)
 
 type Snapshots struct {
 	Snapshot Snapshot `json:"snapshots"`
@@ -31,4 +35,17 @@ type Snapshot struct {
 		Previous string `json:"previous"`
 		Last     string `json:"last"`
 	} `json:"_links"`
+}
+
+func (s *Snapshots) GetByID(id string) (*Snapshot, error) {
+
+	url := fmt.Sprintf("%s/%s", ComputeInstancesUrl, id)
+	res, _ := Do(GET, URL(url), nil)
+	var snapshots Snapshot
+	err := json.Unmarshal(res, &snapshots)
+	if err != nil {
+		return nil, err
+	}
+	return &snapshots, nil
+
 }
