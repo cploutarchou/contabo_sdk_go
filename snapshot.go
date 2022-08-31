@@ -94,3 +94,13 @@ func (s *Snapshots) CreateSnapshot(instanceId int, name, description string) (*C
 	}
 	return &snapshots, nil
 }
+
+func (s *Snapshots) DeleteSnapshot(instanceId int, snapshotId string) error {
+
+	url := fmt.Sprintf("%s/%d/snapshots/%s", ComputeInstancesUrl, instanceId, snapshotId)
+	_, err := Do(DELETE, URL(url), nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
